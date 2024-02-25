@@ -4,7 +4,7 @@ import requests
 import zipfile
 import os
 
-def download_data():
+def get_data():
     dataset_dir = Path('./data/raw')
     dataset_dir.mkdir(parents=True, exist_ok=True)
     
