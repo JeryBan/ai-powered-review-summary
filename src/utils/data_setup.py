@@ -10,14 +10,13 @@ class CustomDataset(Dataset):
     def __init__(self, data: List[str], labels: list, transforms: Optional = None):
         super().__init__()
 
-        self.data = data
         self.labels = labels
         self.transforms = transforms
 
         if transforms:
-            self.data = to_tensor(transforms(self.data), padding_value=1)
+            self.data = to_tensor(self.transforms(data), padding_value=1)
         else:
-            self.data = to_tensor(self.data, padding_value=1)
+            self.data = to_tensor(data, padding_value=1)
        
 
     def __len__(self):
@@ -27,7 +26,7 @@ class CustomDataset(Dataset):
         return self.data[index], self.labels[index]
         
 
-def train_test_split(data: List[str], labels: list, split_point: float = 0.8):
+def train_test_split(data: List[str], labels: list, split_point: float = 0.7):
     '''Splits the data to train and test segments according to split_point.'''
     split = int(split_point * len(data))
     
