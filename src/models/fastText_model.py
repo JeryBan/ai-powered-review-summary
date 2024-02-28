@@ -1,4 +1,5 @@
 
+import torch
 from gensim.models import FastText
 
 from typing import List, Dict
