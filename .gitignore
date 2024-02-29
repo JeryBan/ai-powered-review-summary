@@ -1,3 +1,6 @@
+# downloads
+data/saved_models/glove.6B.200d.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
