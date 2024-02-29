@@ -3,21 +3,18 @@ from typing import List, Optional
 import os
 
 from torch.utils.data import Dataset, DataLoader
+
 from torchtext.functional import to_tensor
+from torchtext.vocab import Vocab
+import torchtext.transforms as T
 
 class CustomDataset(Dataset):
     '''Creates a torch.utils.data.Dataset and applies given transformations.'''
-    def __init__(self, data: List[str], labels: list, transforms: Optional = None):
+    def __init__(self, data: List[str], labels: list, vocab: Vocab):
         super().__init__()
 
-        self.labels = labels
-        self.transforms = transforms
-
-        if transforms:
-            self.data = to_tensor(self.transforms(data), padding_value=1)
-        else:
-            self.data = to_tensor(data, padding_value=1)
-       
+        self.labels = torch.tensor(labels, dtype=torch.float)
+        self.data = custom_transforms(data, vocab)
 
     def __len__(self):
         return len(self.data)
@@ -43,7 +40,7 @@ def create_dataloaders(train_dataset, test_dataset, batch_size: int):
     train_dataloader = DataLoader(dataset=train_dataset,
                                   batch_size=batch_size,
                                   num_workers=os.cpu_count(),
-                                  shuffle=True)
+                                  shuffle=False)
 
     test_dataloader = DataLoader(dataset=test_dataset,
                                   batch_size=batch_size,
@@ -51,3 +48,13 @@ def create_dataloaders(train_dataset, test_dataset, batch_size: int):
                                   shuffle=False)
 
     return train_dataloader, test_dataloader
+
+def custom_transforms(data: List[str], vocab: Vocab, max_seq_len: int = 200) -> torch.Tensor:
+    '''Converts words to ids truncates and returns sentences as tensors.'''
+    f = T.Truncate(max_seq_len=max_seq_len)
+    
+    word2id = [[vocab[word] for word in sentence.split(' ')] for sentence in data]
+    word2id = f(word2id)
+    
+    return to_tensor(word2id, padding_value=0)
+    
