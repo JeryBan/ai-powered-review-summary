@@ -1,21 +1,22 @@
 
-from typing import List, Optional
+from typing import List
 import os
 
 import torch
 from torch.utils.data import Dataset, DataLoader
 
 from torchtext.functional import to_tensor
-from torchtext.vocab import Vocab
 import torchtext.transforms as T
+
+from gensim.corpora import Dictionary
 
 class CustomDataset(Dataset):
     '''Creates a torch.utils.data.Dataset and applies given transformations.'''
-    def __init__(self, data: List[str], labels: list, vocab: Vocab):
+    def __init__(self, data: List[str], labels: list):
         super().__init__()
 
         self.labels = torch.tensor(labels, dtype=torch.float)
-        self.data = custom_transforms(data, vocab)
+        self.data = custom_transforms(data)
 
     def __len__(self):
         return len(self.data)
@@ -50,12 +51,14 @@ def create_dataloaders(train_dataset, test_dataset, batch_size: int):
 
     return train_dataloader, test_dataloader
 
-def custom_transforms(data: List[str], vocab: Vocab, max_seq_len: int = 200) -> torch.Tensor:
+def custom_transforms(data: List[str], max_seq_len: int = 200) -> torch.Tensor:
     '''Converts words to ids truncates and returns sentences as tensors.'''
+    vocab = Dictionary.load('./data/saved_models/sentiment_vocab.pt')
+    
     f = T.Truncate(max_seq_len=max_seq_len)
     
-    word2id = [[vocab[word] for word in sentence.split(' ')] for sentence in data]
-    word2id = f(word2id)
+    sent2ids = [vocab.doc2idx(sentence.split(' '), unknown_word_index=1) for sentence in data]
+    sent2ids = f(sent2ids)
     
-    return to_tensor(word2id, padding_value=0)
+    return to_tensor(sent2ids, padding_value=0)
     

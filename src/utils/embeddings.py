@@ -23,12 +23,16 @@ def download_weights():
 
     return file_destination / 'glove.6B.200d.txt'
 
+from gensim.corpora import Dictionary
 import numpy as np
 import torch
 
-def get_embedding_matrix(weights_path, vocab_stoi):
+def get_embedding_matrix(weights_path):
     '''Populates a matrix with the pretrained weights for every word
        in the vocabulary present in the weights file.'''
+    vocab = Dictionary.load('./data/saved_models/sentiment_vocab.pt')
+    stoi = vocab.token2id
+    
     embeddings_index = {}
     
     f = open(weights_path)
@@ -39,9 +43,9 @@ def get_embedding_matrix(weights_path, vocab_stoi):
         embeddings_index[word] = coefs
     f.close()
     
-    embedding_matrix = np.zeros((len(vocab_stoi) + 1, 200))
+    embedding_matrix = np.zeros((len(stoi) + 1, 200))
     
-    for word, i in vocab_stoi.items():
+    for word, i in stoi.items():
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             # words not found in embedding index will be all-zeros.
