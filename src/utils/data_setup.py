@@ -2,6 +2,7 @@
 from typing import List, Optional
 import os
 
+import torch
 from torch.utils.data import Dataset, DataLoader
 
 from torchtext.functional import to_tensor

@@ -1,27 +1,24 @@
 
-import torch
 from gensim.models import LdaMulticore
-from src.utils.vocab import CustomVocab
+from gensim.corpora import Dictionary
 
 import os
 from typing import List, Dict
 
-def extraxt_topics(document: List[str],
+def extract_topics(document: List[str],
                     num_topics: int = 3,
                     passes: int = 1,
                     iterations: int = 100) -> Dict[int, str]:
     '''Initializes and trains the lda model.
        Returns the top n topics of the document.'''
 
-    vocab = CustomVocab(document)
-    id2word = vocab.id2word
-    bow = vocab.bow
-    
+    vocab = Dictionary.load('./data/saved_models/topics_vocab.pt')
+    corpus = [vocab.doc2bow(text.split(' ')) for text in document]
 
     num_cores = os.cpu_count()
 
     # initialize and train lda model
-    lda_model = LdaMulticore(corpus=bow, id2word=id2word,
+    lda_model = LdaMulticore(corpus=corpus, id2word=vocab,
                              num_topics=1,
                              passes=passes,
                              iterations=iterations,
